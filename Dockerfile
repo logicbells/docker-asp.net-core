@@ -1,11 +1,13 @@
-FROM microsoft/dotnet:sdk as build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.0.100
+
 RUN mkdir app
 WORKDIR /app
 COPY . .
 RUN dotnet restore
 RUN dotnet publish -c Release -o out
 
-FROM microsoft/dotnet:aspnetcore-runtime
-WORKDIR /app
-COPY --from=build /app/out/. .
-CMD dotnet test.dll
+# Make sure the app binds to port 8080
+ENV ASPNETCORE_URLS http://*:8080
+
+# Run the web service on container startup.
+CMD ["dotnet", "out/test.dll"]
